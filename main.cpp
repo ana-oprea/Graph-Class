@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
 // ifstream f("dfs.in");
@@ -17,174 +16,153 @@ using namespace std;
 // ifstream f("hh.in");
 // ofstream g("hh.out");
 
-//ifstream f("apm.in");
-//ofstream g("apm.out");
+// ifstream f("apm.in");
+// ofstream g("apm.out");
 
-ifstream f("dijkstra.in");
-ofstream g("dijkstra.out");
+// ifstream f("dijkstra.in");
+// ofstream g("dijkstra.out");
 
+ifstream f("ciclueuler.in");
+ofstream g("ciclueuler.out");
+
+//ifstream f("hamilton.in");
+//ofstream g("hamilton.out");
 
 class Graf{
 private:
     int nrNoduri;
     vector<vector<int>> listaVecini;
-    vector<vector<int>> listaVeciniW;
+    vector<vector<int>> listaVeciniCost;
+
+    //setteri
+    void set_nrNoduri(int);
+    void set_listaVecini();
+    void set_listaVeciniCosturi();
+    void adaugaMuchie(int, int);
+
+    //metode
+    void print_listaVecini() const;
+    //citire graf orientat
+    void citireOrientat(int, int);
+    //citire graf neorientat
+    void citereNeorientat(int, int);
+    //citire graf neorientat cu costuri
+    void citireNeorientatCosturi(int, int);
+    //citire graf orientat cu costuri
+    void citireOrientatCosturi(int, int);
+    void DFS(int, vector<int>&);
+    void BFS(int, vector<int>&);
+    void DFS_CTC(int, vector<int>&, vector<int>&, stack<int>&, vector<bool>&, int&);
+    vector<int> APM();
+
 public:
     Graf();
     Graf(int);
-    int get_nrNoduri();
-    void set_nrNoduri(int);
-    void set_listaVecini();
-    void adaugaMuchie(int, int);
-    void print_listaVecini();
-
-    //citire graf orientat
-    void citireOrientat();
-    void citereNeorientat();
+    // mai adauga un constructor
+    void adaugaMuchieCost(int, int, int);
+    void citireEul();
+    //getteri
+    int get_nrNoduri() const;
 
     // DFS
-    void DFS(int, vector<int>&);
-    void nrCompConexe();
+    int nrCompConexe();
 
     // BFS
-    void BFS(int, vector<int>&);
     void Distante();
 
     // CTC
-    void Tarjan();
-    void DFS_CTC(int, vector<int>&, vector<int>&, stack<int>&, vector<bool>&, int&);
+    set<int> Tarjan();
 
     // Sortare topologica
-    void Kahn();
-
-    void get_listaVeciniW();
-    void set_listaVeciniWOr();
-    void set_listaVeciniWNeo();
+    vector<int> Kahn();
 
     // APM
-    vector<int> APM();
+    void printAPM();
 
     // Dijkstra
-    vector<int> Dijkstra();
+    void Dijkstra();
+
+   // ciclu eulerian
+    void hasEulerCircuit();
+    vector<int> EulerCircuit();
+
+    // hamilton
+    int hamilton(vector<vector<pair<int,int>>>);
 };
 
-vector<int> Graf::Dijkstra(){
-    this->set_listaVeciniWOr();
+int Graf::hamilton(vector<vector<pair<int,int>>> l){
+    vector<vector<int>> minCost((1 << get_nrNoduri()), vector<int>(get_nrNoduri(), 1e9));
+    minCost.resize((1 << get_nrNoduri()));
 
-    vector<int> distante(get_nrNoduri(), INFINITY);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    vector <bool> vizitat(get_nrNoduri(), false);
-    distante[0] = 0;
-    pq.push(make_pair(0,0));
+    minCost[1][0] = 0;
 
-    while (pq.empty() == false){
-        int nod_curent = pq.top().second;
-        pq.pop();
-
-        if (vizitat[nod_curent] == false){
-            vizitat[nod_curent] = true;
-                for (int j = 0; j < listaVeciniW[nod_curent].size(); j++){
-                    if (listaVeciniW[nod_curent][j] != 0){
-                        if (distante[j] > distante[nod_curent] + listaVeciniW[nod_curent][j]){
-                            distante[j] = distante[nod_curent] + listaVeciniW[nod_curent][j];
-                            pq.push(make_pair(distante[j], j));
-
+    for (int i = 0; i < (1 << get_nrNoduri()); i++){
+        for (int j = 0; j < get_nrNoduri(); j++){
+            if ((i & (1 << j))){
+                for (auto elem: l[j]){
+                    if ((i & (1 << elem.first))){
+                        minCost[i][j] = min(minCost[i][j], minCost[i ^ (1 << j)][elem.first] + elem.second);
                     }
-
-            }
-
-        }
-    }
-    }
-    for (int i = 1; i < get_nrNoduri(); i++){
-        if (distante[i] != INFINITY){
-            g << distante[i] << " ";
-        }
-        else
-            g << 0 << " ";
-    }
-}
-
-void Graf::set_listaVeciniWNeo(){
-    int n,
-        m,
-        nod1,
-        nod2,
-        greutate;
-
-    f >> n >> m;
-    this->set_nrNoduri(n);
-
-    for (int i = 0; i < this->get_nrNoduri(); i++){
-        vector<int> aux(get_nrNoduri(), 0);
-        listaVeciniW.push_back(aux);
-    }
-
-    for (int i = 1; i <= m; i++){
-        f >> nod1 >> nod2 >> greutate;
-        listaVeciniW[nod1 - 1][nod2 - 1] = greutate;
-        listaVeciniW[nod2 - 1][nod1 - 1] = greutate;
-    }
-}
-
-void Graf::set_listaVeciniWOr(){
-    int n,
-        m,
-        nod1,
-        nod2,
-        greutate;
-
-    f >> n >> m;
-    this->set_nrNoduri(n);
-
-    for (int i = 0; i < this->get_nrNoduri(); i++){
-        vector<int> aux(get_nrNoduri(), 0);
-        listaVeciniW.push_back(aux);
-    }
-
-    for (int i = 1; i <= m; i++){
-        f >> nod1 >> nod2 >> greutate;
-        listaVeciniW[nod1 - 1][nod2 - 1] = greutate;
-    }
-}
-
-vector<int> Graf::APM(){
-    this->set_listaVeciniWNeo();
-    vector<bool> vizitat(get_nrNoduri(), false);
-    vector<int> apm;
-    vizitat[0] = true;
-    int row, col;
-    int nr_muchii = 0;
-    int suma = 0;
-
-    while (nr_muchii < get_nrNoduri() - 1){
-        int min = INFINITY;
-        row = 0;
-        col = 0;
-
-        for (int i = 0; i< get_nrNoduri(); i++){
-            if(vizitat[i] == true){
-                for (int j = 0; j < get_nrNoduri(); j++){
-                    if (vizitat[j] == false && listaVeciniW[i][j] != 0){
-                        if (min > listaVeciniW[i][j]){
-                            min = listaVeciniW[i][j];
-                            row = i;
-                            col = j;
-                        }
-                    }
-
                 }
             }
         }
-        suma += listaVeciniW[row][col];
-        apm.push_back(row);
-        apm.push_back(col);
-        vizitat[col] = true;
-        nr_muchii ++;
     }
-    g << suma << "\n";
-    g << apm.size() / 2 << "\n";
-    return apm;
+
+    int sol = 1e9;
+    for (auto elem : l[0]){
+        sol = min(sol, minCost[(1 << get_nrNoduri()) - 1][elem.first] + elem.second);
+    }
+
+    return sol;
+}
+
+void Graf::adaugaMuchieCost(int nod1, int nod2, int cost){
+    listaVeciniCost[nod1][nod2] = cost;
+}
+
+void Graf::hasEulerCircuit(){
+    int n, m;
+    f >> n >> m;
+    citereNeorientat(n ,m);
+	
+    int odd = 0;
+    for (int i = 0; i < get_nrNoduri(); i++){
+        if (listaVecini[i].size() % 2 != 0)
+            odd ++;
+    }
+    if (odd == 0)
+        EulerCircuit();
+    else
+        g << -1;
+}
+vector<int> Graf::EulerCircuit(){
+    stack<int> st;
+    vector<int> path;
+
+    int nod, edge;
+    st.push(0);
+
+    while (st.empty() == false){
+        nod = st.top();
+        if (listaVecini[nod].size() > 0){
+            edge = listaVecini[nod][0];
+            listaVecini[nod].erase(listaVecini[nod].begin());
+
+            for (int i = 0; i < listaVecini[edge].size(); i++){
+                if (listaVecini[edge][i] == nod){
+                    listaVecini[edge].erase(listaVecini[edge].begin() + i);
+                    break;
+                }
+            }
+            st.push(edge);
+        }
+        else{
+            st.pop();
+            path.push_back(nod);
+        }
+    }
+
+    return path;
 }
 
 Graf::Graf(int n){
@@ -203,7 +181,7 @@ void Graf::adaugaMuchie(int m1, int m2){
     listaVecini[m1].push_back(m2);
 }
 
-int Graf::get_nrNoduri(){
+int Graf::get_nrNoduri() const{
     return this->nrNoduri;
 }
 
@@ -218,7 +196,14 @@ void Graf::set_listaVecini(){
     }
 }
 
-void Graf::print_listaVecini(){
+void Graf::set_listaVeciniCosturi(){
+    for (int i = 0; i < this->get_nrNoduri(); i++){
+        vector<int> aux(get_nrNoduri(), 0);
+        listaVeciniCost.push_back(aux);
+    }
+}
+
+void Graf::print_listaVecini() const{
     for (int i = 0; i < this->get_nrNoduri(); i++){
         cout << i + 1 << ": ";
         for (int j = 0; j < listaVecini[i].size(); j++){
@@ -228,13 +213,9 @@ void Graf::print_listaVecini(){
     }
 }
 
-void Graf::citireOrientat(){
-    int n,
-        m,
-        nod1,
+void Graf::citireOrientat(int n, int m){
+    int nod1,
         nod2;
-
-    f >> n >> m;
 
     this->set_nrNoduri(n);
     this->set_listaVecini();
@@ -244,13 +225,9 @@ void Graf::citireOrientat(){
     }
 }
 
-void Graf::citereNeorientat(){
-    int n, // nr noduri
-        m, // nr muchii
-        nod1, // primul nod al muchiei
+void Graf::citereNeorientat(int n, int m){
+    int nod1, // primul nod al muchiei
         nod2; // al doilea nod al muchiei
-
-    f >> n >> m;
 
     this->set_nrNoduri(n);
     this->set_listaVecini();
@@ -260,6 +237,41 @@ void Graf::citereNeorientat(){
         f >> nod2;
         this->adaugaMuchie(nod1 - 1, nod2 - 1);
         this->adaugaMuchie(nod2 - 1, nod1 - 1);
+    }
+}
+
+void Graf::citireNeorientatCosturi(int n, int m){
+    int nod1, // primul nod al muchiei
+        nod2,
+        cost; // al doilea nod al muchiei
+
+    this->set_nrNoduri(n);
+    this->set_listaVeciniCosturi();
+
+    for (int i = 0; i < m; i++){
+        f >> nod1;
+        f >> nod2;
+        f >> cost;
+        this->listaVeciniCost[nod1 - 1][nod2 - 1] = cost;
+        this->listaVeciniCost[nod2 - 1][nod1 - 1] = cost;
+    }
+}
+
+void Graf::citireOrientatCosturi(int n, int m){
+    int nod1, // primul nod al muchiei
+        nod2,
+        cost; // al doilea nod al muchiei
+
+    this->set_nrNoduri(n);
+
+    this->set_listaVeciniCosturi();
+
+
+    for (int i = 0; i < m; i++){
+        f >> nod1;
+        f >> nod2;
+        f >> cost;
+        this->listaVeciniCost[nod1 - 1][nod2 - 1] = cost;
     }
 }
 
@@ -274,9 +286,11 @@ void Graf::DFS(int nod, vector<int> &vizitat){
     }
 }
 
-void Graf::nrCompConexe(){
-    this->citereNeorientat();
-    //get_listaVecini();
+int Graf::nrCompConexe(){
+    int n,
+        m;
+    f >> n >> m;
+    this->citereNeorientat(n, m);
 
     vector<int> vizitat(this->get_nrNoduri(), 0); // vector care retine daca un nod a fost vizitat sau nu
     int nrComponenteConexe = 0;
@@ -288,7 +302,7 @@ void Graf::nrCompConexe(){
         }
     }
 
-    g << nrComponenteConexe;
+    return nrComponenteConexe;
 }
 
 void Graf::BFS(int s, vector<int> &distanta){
@@ -318,18 +332,11 @@ void Graf::BFS(int s, vector<int> &distanta){
 void Graf::Distante(){
     int n,
         m,
-        s,
-        nod1,
-        nod2;
+        s;
 
     f >> n >> m >> s;
 
-    this->set_nrNoduri(n);
-    this->set_listaVecini();
-    for (int i = 1; i <= m; i++){
-        f >> nod1 >> nod2;
-        this->adaugaMuchie(nod1 - 1, nod2);
-    }
+    this->citireOrientat(n,m);
 
     vector<int> distanta (this->get_nrNoduri() , 0);
 
@@ -375,8 +382,11 @@ void Graf::DFS_CTC(int nod_curent, vector<int> &descoperit, vector<int> &low, st
     }
 }
 
-void Graf::Tarjan(){
-    this->citireOrientat();
+set<int> Graf::Tarjan(){
+    int n,
+        m;
+    f >> n >> m;
+    this->citireOrientat(n, m);
     vector<int> descoperit(this->get_nrNoduri(), -1);
     vector<int> low(this->get_nrNoduri(), -1);
     stack<int> stiva;
@@ -392,17 +402,22 @@ void Graf::Tarjan(){
     for (int i = 0; i < this->get_nrNoduri(); i++){
         multime.insert(low[i]);
     }
-    for (auto elem : multime){
-        for (int i = 0; i < this->get_nrNoduri(); i++){
-            if (low[i] == elem)
-               g << i + 1<< " ";
-        }
-        g << "\n";
-    }
+
+    return multime;
+    // for (auto elem : multime){
+    //     for (int i = 0; i < this->get_nrNoduri(); i++){
+    //         if (low[i] == elem)
+    //            g << i + 1<< " ";
+    //     }
+    //     g << "\n";
+    // }
 }
 
-void Graf::Kahn(){
-    this->citireOrientat();
+vector<int> Graf::Kahn(){
+    int n,
+        m;
+    f >> n >> m;
+    this->citireOrientat(n, m);
     vector<int> in_degree(this->get_nrNoduri(),0);
     queue<int> q;
     vector<int> order;
@@ -430,9 +445,10 @@ void Graf::Kahn(){
         }
     }
 
-    for (int i = 0; i < this->get_nrNoduri(); i++){
-        g << order[i] + 1<< " ";
-    }
+    return order;
+    // for (int i = 0; i < this->get_nrNoduri(); i++){
+    //     g << order[i] + 1<< " ";
+    // }
 }
 
 bool HavelHakimi(){
@@ -487,20 +503,102 @@ bool HavelHakimi(){
 
 } }
 
+vector<int> Graf::APM(){
+    int n,
+        m;
+    f >> n >> m;
+    this->citireNeorientatCosturi(n ,m);
+    vector<int> parinte(get_nrNoduri(), -1);
+    vector<int> id(get_nrNoduri(),  INT_MAX);
+    vector<bool> vizitat(get_nrNoduri(), false);
+
+    id[0] = 0;
+
+    for (int i = 0; i < get_nrNoduri(); i++){
+        // alegem muchia de cost minim ale carei noduri nu au fost adaugate in APM
+        int min = INT_MAX;
+        int idMin;
+        for (int j = 0; j < get_nrNoduri(); j++){
+            if (vizitat[j] == false && id[j] < min){
+                min = id[j];
+                idMin = j;
+            }
+        }
+        vizitat[idMin] = true;
+
+        for (int j = 0; j < get_nrNoduri(); j++){
+            if (listaVeciniCost[idMin][j] && vizitat[j] == false && listaVeciniCost[idMin][j] < id[j]){
+                parinte[j] = idMin;
+                id[j] = listaVeciniCost[idMin][j];
+            }
+        }
+    }
+
+    return parinte;
+}
+
+void Graf::printAPM(){
+    vector<int> parinte = this->APM();
+    int suma = 0;
+
+    for (int i = 1; i < listaVeciniCost.size(); i++){
+        suma += listaVeciniCost[i][parinte[i]];
+    }
+    g << suma << "\n";
+
+    g << parinte.size() - 1;
+
+    for (int i = 1; i < listaVeciniCost.size(); i++){
+        g << "\n" << parinte[i] + 1 << " " << i + 1;
+    }
+}
+
+void Graf::Dijkstra(){
+    
+}
 
 
 int main(){
-    Graf g1;
-    Graf g2;
+    // Graf g1;
     // g1.nrCompConexe();
     // g1.Distante();
     // g1.Tarjan();
     // g1.Kahn();
-    // g << HavelHakimi();
-    // vector<int> apm = g2.APM();
-    // for (int i = 0; i < apm.size() - 1; i+=2){
-    //     g << apm[i] + 1 << " " << apm[i+1] + 1 << "\n";
+    //g << HavelHakimi();
+
+    // vector<int> rezAPM =
+    // g1.printAPM();
+    // int suma = 0;
+    // for (int i = 0; i < rezAPM.size(); i++){
+    //     suma +=
     // }
-    g1.Dijkstra();
+    
+    // g1.citireEul();
+    // g1.hasEulerCircuit();
+
+    int n, m;
+    f >> n >> m;
+
+    Graf g1(n);
+
+    int nod1,
+        nod2,
+        cost;
+
+    vector<pair<int, int>> aux;
+    vector<vector<pair<int,int>>> l(n , aux);
+
+    for (int i = 0; i < m; i++){
+        f >> nod1;
+        f >> nod2;
+        f >> cost;
+        l[nod1].push_back(make_pair(nod2, cost));
+    }
+
+    int rez = g1.hamilton(l);
+    if (rez == 1e9)
+        g << "Nu exista solutie";
+    else
+        g << rez;
     return 0;
 }
