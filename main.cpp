@@ -11,7 +11,6 @@ private:
     void setListaVecini();
     void setListaVeciniCosturi();
 
-
     void adaugaMuchie(int, int);
     void adaugaMuchieCost(int, int, int);
 
@@ -471,8 +470,8 @@ int main(){
     //ifstream f("hamilton.in");
     //ofstream g("hamilton.out");
 
-    ifstream f("royfloyd.in");
-    ofstream g("royfloyd.out");
+    // ifstream f("royfloyd.in");
+    // ofstream g("royfloyd.out");
 
     // --------------number of conex components---------------- 
     // int n,
@@ -499,38 +498,38 @@ int main(){
     // g << g1.nrCompConexe();
 
     // --------------minimum distance from start node to the other nodes---------------- 
-//     int n,
-//         m,
-//         s;
+    //     int n,
+    //         m,
+    //         s;
 
-//     f >> n >> m >> s;
+    //     f >> n >> m >> s;
 
-//     int nod1,
-//         nod2;
+    //     int nod1,
+    //         nod2;
 
-//     vector<vector<int>> lv;
-//     for (int i = 0; i < n; i++){
-//         vector<int> aux;
-//         lv.push_back(aux);
-//     }
+    //     vector<vector<int>> lv;
+    //     for (int i = 0; i < n; i++){
+    //         vector<int> aux;
+    //         lv.push_back(aux);
+    //     }
 
-//     for (int i = 1; i <= m; i++){
-//         f >> nod1 >> nod2;
-//         lv[nod1 - 1].push_back(nod2);
-//     }
+    //     for (int i = 1; i <= m; i++){
+    //         f >> nod1 >> nod2;
+    //         lv[nod1 - 1].push_back(nod2);
+    //     }
 
-//     Graf g1(n, lv);
+    //     Graf g1(n, lv);
     
-//     vector<int> distanta;
-//     distanta = g1.BFSInfoarena(s);
+    //     vector<int> distanta;
+    //     distanta = g1.BFSInfoarena(s);
 
-//     for (int i = 0 ; i < n; i++){
-//         // daca distanta este 0 si nodul respectiv nu este nodul de start atunci inseamna ca nu putem sa ajungem la nodul respectiv deci distanta de la s la el este - 1
-//         if (distanta[i] == 0 && i + 1 != s){
-//             distanta[i] = -1;
-//         }
-//         g << distanta[i] << " ";
-//    }
+    //     for (int i = 0 ; i < n; i++){
+    //         // daca distanta este 0 si nodul respectiv nu este nodul de start atunci inseamna ca nu putem sa ajungem la nodul respectiv deci distanta de la s la el este - 1
+    //         if (distanta[i] == 0 && i + 1 != s){
+    //             distanta[i] = -1;
+    //         }
+    //         g << distanta[i] << " ";
+    //    }
 
     // --------------strong connected components---------------- 
     // int n,
